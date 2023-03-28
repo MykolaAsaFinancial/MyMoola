@@ -17,15 +17,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     
     static let shared: AppDelegate = UIApplication.shared.delegate as! AppDelegate
-    var params: [String: String] = [:]
-    let dateFormatter = DateFormatter()
-         
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
-        
-        self.params = AppDelegate.shared.getURLParams()
-        dateFormatter.locale = Locale(identifier: "en_US")
         
         // Firebase configuration
         FirebaseOptions.defaultOptions()?.deepLinkURLScheme = "com.asa.pal"
@@ -93,7 +86,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func performDynamicLink(params: [String: String]) {
-        self.params = params
         AppDelegate.shared.saveURLParams(params: params)
         
         // Params which comes from AsaVault
@@ -102,10 +94,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         NSLog("FintechName = %@", params["FintechName"] ?? "")
 
         if let rootViewController = window?.rootViewController as? ViewController {
-            rootViewController.dict = self.params
-            rootViewController.syncModels()
-            rootViewController.hideShowNoData()
-            rootViewController.reloadTable()
             rootViewController.callPersonalInfoAPI()
         }
     }
@@ -131,15 +119,5 @@ extension AppDelegate {
     }
     func getURLParams() -> [String: String] {
         return UserDefaults.standard.dictionary(forKey: "kLastSavedParams") as? [String: String] ?? [:]
-    }
-    func saveDetailsForConsumerCode(details: [String: String], consumerCode: String) {
-        var dict = UserDefaults.standard.dictionary(forKey: "kConsumerCodeDetails") ?? [:]
-        dict[consumerCode] = details
-        UserDefaults.standard.setValue(dict, forKey: "kConsumerCodeDetails")
-    }
-    func getDetailsForConsumerCode(consumerCode: String) -> [String: String]? {
-        let dict = UserDefaults.standard.dictionary(forKey: "kConsumerCodeDetails") ?? [:]
-        let details = dict[consumerCode] as? [String: String]
-        return details
     }
 }

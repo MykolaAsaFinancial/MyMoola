@@ -8,13 +8,13 @@
 import UIKit
 import Alamofire
 
-// MARK:- Some API related static values
 struct APIStaticData {
 
-    // UAT
     static let API_KEY  = ""
-    static let BASE_URL = ""
+    static let AUTHORIZATION_KEY  = ""
+    static let APP_CODE  = ""
     
+    static let BASE_URL = "https://openapi.asacore.com"
     static let SUCCESS_STATUS = [200, 201]
 }
 
@@ -28,7 +28,8 @@ final class APIService: NSObject {
 
 // MARK:- Endpoints
 enum APIEndPoints: String {
-    case accounts = "Accounts"
+    case accounts = "Balance/Accounts"
+    case transactions = "Transactions"
 }
 
 extension APIEndPoints {
@@ -42,6 +43,8 @@ extension APIEndPoints {
 extension HTTPHeaders {
     mutating func appendCommonHeaders() {
         self.add(name: "Ocp-Apim-Subscription-Key", value: APIStaticData.API_KEY)
+        self.add(name: "AuthorizationKey", value: APIStaticData.AUTHORIZATION_KEY)
+        self.add(name: "ApplicationCode", value: APIStaticData.APP_CODE)
         self.add(name: "X_ASA_version",             value: "1.01")
     }
 }
@@ -108,40 +111,21 @@ extension APIService {
         }
     }
     
-    func parseData<T: Decodable>(data: Data?, error: Error?, completion: @escaping (T?, Error?) -> Void) {
-        
-        if let error = error {
-            debugPrint(error.localizedDescription)
-            completion(nil, error)
-            return
-        }
-        
-        
-        // Check if we recieved the data properly
-        guard let data = data else {
-            // No data found
-            debugPrint(APICustomErrors.InvalidJson.error.localizedDescription)
-            completion(nil, APICustomErrors.InvalidJson.error)
-            return
-        }
-        
-        // We have data, Now try parsing
-        do {
-            let obj = try data.decode() as T
-            debugPrint(obj)
-            completion(obj, nil)
-        } catch _ {
-            debugPrint(APICustomErrors.InvalidJson.error.localizedDescription)
-            completion(nil, APICustomErrors.InvalidJson.error)
-        }
-    }
 }
 
 
 // MARK:- App APIs
 extension APIService {
 
-    func apiToGetConsumerData(consumerCode: String, fintechCode: String, completion: @escaping (ASAResponseRoot<ASATransactionData>?, Error?) -> ()) {
+    func apiToGetTransactionsData(consumerCode: String, fintechCode: String, completion: @escaping (ASAResponseRoot<[ASATransactionData]>?, Error?) -> ()) {
+        var headers = HTTPHeaders()
+        headers.appendCommonHeaders()
+        headers.add(name: "asaConsumerCode", value: consumerCode)
+        headers.add(name: "asaFintechCode", value: fintechCode)
+        performAPI(endPoint: .transactions, method: .post, params: [:], headers: headers, completion: completion)
+    }
+    
+    func apiToGetAccountsData(consumerCode: String, fintechCode: String, completion: @escaping (ASAResponseRoot<[ASAAccountBalance]>?, Error?) -> ()) {
         var headers = HTTPHeaders()
         headers.appendCommonHeaders()
         headers.add(name: "asaConsumerCode", value: consumerCode)

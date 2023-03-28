@@ -8,6 +8,7 @@ Execute this command in project directory. More details here https://cocoapods.o
 ```
 
 
+# Using Dynamic Links
 
 AsaVault uses Firebase Dynamic Links in order to pass data to other apps.
 
@@ -90,3 +91,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
 }
 ```
+
+# Using ASA OpenApi 
+
+In order to use ASA OpenApi take a look at the file ApiService.swift
+You can find here special constants to configure access to ASA shared api.
+API_KEY, AUTHORIZATION_KEY, APP_CODE should be filled with valid data.
+
+```
+struct APIStaticData {
+
+    static let API_KEY  = "xxxxxxx"
+    static let AUTHORIZATION_KEY  = "xxxxxxxx"
+    static let APP_CODE  = "xxxx"
+    
+    static let BASE_URL = "https://openapi.asacore.com"
+
+}
+```
+
+
+
